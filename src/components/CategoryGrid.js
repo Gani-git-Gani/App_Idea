@@ -1,7 +1,7 @@
 import React from 'react';
 
 const categories = [
-  { name: 'Preorder', icon: '🍽️' },
+  { name: 'Preorder', icon: '🥘' },
   { name: 'Dine-In', icon: '🏠' },
   { name: 'Top Rated', icon: '⭐' },
   { name: 'Popular', icon: '🔥' },
