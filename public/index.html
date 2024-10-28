@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Restaurant Explorer</title>
+    <link rel="stylesheet" href="App.css" />
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDilu38CbjGg3dMKqnWqAVHUz6DV4lEm9g&callback=initMap" async defer></script>
+    <style>
+      #map {
+        height: 500px;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div id="map" style="display: none; height: 500px; width: 100%; margin: 20px 0;"></div>
+    <div id="directions-panel" style="display: none;"></div>
+
+    <script>
+      let map;
+      let directionsService;
+      let directionsRenderer;
+      
+      // Initialize the map and services only when needed
+      function initializeMapServices() {
+        if (!map) {
+          directionsService = new google.maps.DirectionsService();
+          directionsRenderer = new google.maps.DirectionsRenderer();
+          
+          map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 7,
+            center: { lat: 0, lng: 0 }
+          });
+
+          directionsRenderer.setMap(map);
+          directionsRenderer.setPanel(document.getElementById('directions-panel'));
+        }
+      }
+
+      // Keep only this function as it will be called from React components
+      function handleDestinationSearch(searchQuery) {
+        // Show the map container
+        document.getElementById('map').style.display = 'block';
+        document.getElementById('directions-panel').style.display = 'block';
+        
+        // Initialize map services if not already initialized
+        initializeMapServices();
+
+        // Get current location and calculate route
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const origin = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+              };
+
+              const request = {
+                origin: origin,
+                destination: searchQuery,
+                travelMode: google.maps.TravelMode.DRIVING
+              };
+
+              directionsService.route(request, (response, status) => {
+                if (status === 'OK') {
+                  directionsRenderer.setDirections(response);
+                } else {
+                  console.error("Directions request failed:", status);
+                  alert("Could not calculate directions. Error: " + status);
+                }
+              });
+            },
+            (error) => {
+              console.error("Geolocation error:", error);
+              alert("Error getting your location: " + error.message);
+            }
+          );
+        } else {
+          alert("Geolocation is not supported by this browser.");
+        }
+      }
+
+      function initMap() {
+        // Initialize empty map
+        map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 7,
+          center: { lat: -34.397, lng: 150.644 }, // Default center
+        });
+      }
+    </script>
+  </body>
+</html>
